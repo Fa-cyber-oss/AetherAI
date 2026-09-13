@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#080b11">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Aether AI — Intelligent Assistant (ChatGPT & Gemini Experience)</title>
+  <meta name="description" content="Ask anything to Aether AI: A powerful, conversational AI assistant with streaming replies, markdown rendering, code execution styling, voice chat, and Gemini/OpenAI integration.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Highlight.js for Code Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  
+  <!-- Marked.js for Markdown Parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- 3D Interactive Liquid Live Wallpaper Canvas -->
+  <canvas id="bgCanvas" class="live-wallpaper-canvas"></canvas>
+
+  <!-- Fantastic Cinematic Entrance Splash -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-card">
+      <div class="intro-orb-container">
+        <div class="intro-glow-aura"></div>
+        <div class="intro-liquid-ring"></div>
+        <div class="intro-liquid-ring ring-2"></div>
+        <div class="intro-emblem">
+          <svg class="intro-sparkle-svg" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="url(#introGradient)" />
+            <defs>
+              <linearGradient id="introGradient" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8"/>
+                <stop offset="0.5" stop-color="#818cf8"/>
+                <stop offset="1" stop-color="#c084fc"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="intro-text-group">
+        <h1 class="intro-title">AETHER <span class="intro-highlight">AI</span></h1>
+        <p class="intro-subtitle">Intelligence Beyond Horizons</p>
+      </div>
+      <div class="intro-progress-bar">
+        <div class="intro-progress-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-layout" id="appLayout">
+    <!-- Backdrop for mobile drawer -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon-wrapper">
+            <svg class="sparkle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="url(#brandGradient)" stroke="none"/>
+              <defs>
+                <linearGradient id="brandGradient" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38bdf8"/>
+                  <stop offset="0.5" stop-color="#818cf8"/>
+                  <stop offset="1" stop-color="#c084fc"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h2>Aether AI</h2>
+            <span class="brand-tag">Gemini Pro • GPT-4</span>
+          </div>
+        </div>
+        <button class="icon-btn close-sidebar-btn" id="closeSidebarBtn" title="Close sidebar" aria-label="Close sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Action Button: New Chat -->
+      <div class="sidebar-actions">
+        <button class="btn btn-new-chat" id="newChatBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>New Chat</span>
+          <kbd class="shortcut-kbd">Ctrl+K</kbd>
+        </button>
+      </div>
+
+      <!-- Search in conversations -->
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="searchInput" placeholder="Search conversations..." aria-label="Search conversations">
+      </div>
+
+      <!-- Conversations List -->
+      <div class="conversations-wrapper" id="conversationsWrapper">
+        <div class="conversations-group" id="todayGroup">
+          <div class="group-label">Recent Chats</div>
+          <div class="conversations-list" id="conversationsList">
+            <!-- Dynamic session items inserted by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <button class="footer-btn" id="settingsBtn" title="API Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>API & Model Settings</span>
+        </button>
+        <div class="footer-row">
+          <button class="footer-btn icon-only" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+            <svg class="theme-icon-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <svg class="theme-icon-light" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </button>
+          <button class="footer-btn icon-only" id="clearAllBtn" title="Clear All Conversations">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Surface -->
+    <main class="main-chat" id="mainChat">
+      <!-- Top Navigation Bar -->
+      <header class="top-nav">
+        <div class="nav-left">
+          <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle sidebar">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          
+          <div class="model-badge-dropdown" id="modelBadgeDropdown">
+            <button class="model-badge" id="activeModelBadge" type="button" aria-haspopup="true" aria-expanded="false" title="Click to choose AI Model">
+              <span class="status-dot"></span>
+              <span class="model-name" id="displayModelName">Aether Simulated Engine</span>
+              <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+
+            <!-- Quick Model Selector Popover (Liquid Glass) -->
+            <div class="model-popover" id="modelPopover" style="display: none;">
+              <div class="popover-header">
+                <span class="popover-title">Choose AI Model</span>
+                <span class="popover-badge">Instant Switch</span>
+              </div>
+              <div class="popover-models-list" id="popoverModelsList">
+                <!-- Dynamically populated by app.js -->
+              </div>
+              <div class="popover-footer">
+                <button type="button" class="popover-settings-btn" id="popoverSettingsBtn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  <span>Configure API Keys in Settings</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-right">
+          <button class="top-btn" id="exportChatBtn" title="Export conversation as Markdown or JSON">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span class="btn-text">Export</span>
+          </button>
+          <button class="top-btn" id="clearChatBtn" title="Clear current messages">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span class="btn-text">Clear</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Message Viewport -->
+      <div class="chat-viewport" id="chatViewport">
+        <!-- Welcome Hero View (Shown when conversation is empty) -->
+        <div class="welcome-hero" id="welcomeHero">
+          <div class="hero-sparkle-glow"></div>
+          <div class="hero-badge">Next-Gen Intelligence</div>
+          <h1 class="hero-title">
+            <span>Hello!</span> <br>
+            <span class="gradient-text">What can I help you discover?</span>
+          </h1>
+          <p class="hero-description">
+            Ask me anything: solve complex math, write code, debug errors, explain scientific concepts, or compose creative essays.
+          </p>
+
+          <!-- Prompt Cards Grid -->
+          <div class="prompt-cards-grid">
+            <div class="prompt-card" data-prompt="Explain quantum computing in simple terms with an intuitive analogy.">
+              <div class="card-icon">⚛️</div>
+              <div class="card-content">
+                <div class="card-title">Explain Quantum Computing</div>
+                <div class="card-subtitle">Intuitive analogy for beginners</div>
+              </div>
+              <div class="card-arrow">→</div>
+            </div>
+
+            <div class="prompt-card" data-prompt="Write a complete Python script to scrape top Hacker News headlines with BeautifulSoup.">
+              <div class="card-icon">🐍</div>
+              <div class="card-content">
+                <div class="card-title">Python Web Scraper</div>
+                <div class="card-subtitle">Clean, ready-to-run code</div>
+              </div>
+              <div class="card-arrow">→</div>
+            </div>
+
+            <div class="prompt-card" data-prompt="Draft a persuasive email pitching our AI solution to prospective enterprise clients.">
+              <div class="card-icon">✉️</div>
+              <div class="card-content">
+                <div class="card-title">Draft Sales Email</div>
+                <div class="card-subtitle">Professional & high-converting</div>
+              </div>
+              <div class="card-arrow">→</div>
+            </div>
+
+            <div class="prompt-card" data-prompt="Compare the pros and cons of React, Vue, and Svelte in 2026 with a summary table.">
+              <div class="card-icon">⚡</div>
+              <div class="card-content">
+                <div class="card-title">React vs Vue vs Svelte</div>
+                <div class="card-subtitle">Deep architectural comparison</div>
+              </div>
+              <div class="card-arrow">→</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Message Feed -->
+        <div class="messages-container" id="messagesContainer"></div>
+      </div>
+
+      <!-- Floating Input Area -->
+      <div class="chat-input-wrapper">
+        <!-- Attachment Previews -->
+        <div class="attachment-preview-box" id="attachmentPreviewBox" style="display:none;">
+          <div class="preview-chip" id="previewChip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span class="preview-filename" id="previewFilename">file.txt</span>
+            <button class="remove-preview-btn" id="removeAttachmentBtn">×</button>
+          </div>
+        </div>
+
+        <form class="input-card" id="chatForm">
+          <!-- Hidden file input -->
+          <input type="file" id="fileInput" accept=".txt,.js,.py,.html,.css,.json,.md,.csv,.jpg,.png" style="display: none;">
+          
+          <button type="button" class="action-btn attach-btn" id="attachBtn" title="Attach file or code snippet">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+          </button>
+
+          <textarea 
+            id="promptInput" 
+            placeholder="Ask anything... (Enter to send, Shift+Enter for newline)" 
+            rows="1" 
+            autocomplete="off" 
+            spellcheck="true"
+            aria-label="Ask a question"></textarea>
+
+          <button type="button" class="action-btn mic-btn" id="micBtn" title="Voice Input (Speech-to-Text)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          </button>
+
+          <button type="submit" class="action-btn send-btn" id="sendBtn" title="Send message" disabled>
+            <svg class="send-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <svg class="stop-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>
+          </button>
+        </form>
+
+        <div class="input-hint">
+          <span>Aether AI provides answers with live streaming, syntax highlighting, and voice. Connect your Gemini or OpenAI API key in <a href="#" id="settingsLink">Settings</a> for live cloud intelligence.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="settingsModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <h3>AI Engine & API Settings</h3>
+        </div>
+        <button class="icon-btn modal-close-btn" id="closeSettingsBtn">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Provider Selector -->
+        <div class="form-group">
+          <label class="form-label" for="providerSelect">AI Provider</label>
+          <select id="providerSelect" class="form-select">
+            <option value="simulated">⚡ Built-in Smart Engine (No API Key Required)</option>
+            <option value="gemini">✨ Google Gemini API (Recommended)</option>
+            <option value="openai">🤖 OpenAI API (ChatGPT)</option>
+          </select>
+          <span class="form-help" id="providerHelp">Fast, zero-configuration local AI engine with built-in responses for coding, science, writing & more.</span>
+        </div>
+
+        <!-- API Key -->
+        <div class="form-group" id="apiKeyGroup" style="display: none;">
+          <div class="label-with-link">
+            <label class="form-label" for="apiKeyInput">API Key</label>
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" id="apiKeyLink" class="helper-link">Get free Gemini API Key →</a>
+          </div>
+          <div class="input-with-action">
+            <input type="password" id="apiKeyInput" class="form-input" placeholder="Paste your API key here...">
+            <button type="button" class="visibility-btn" id="toggleApiKeyVisibility">👁️</button>
+          </div>
+          <span class="form-help">Your API key is stored safely in your browser's localStorage and never transmitted elsewhere.</span>
+        </div>
+
+        <!-- Model Selection -->
+        <div class="form-group" id="modelSelectGroup" style="display: none;">
+          <label class="form-label" for="modelSelect">Model</label>
+          <select id="modelSelect" class="form-select">
+            <!-- Populated dynamically based on provider -->
+          </select>
+        </div>
+
+        <!-- System Instructions -->
+        <div class="form-group">
+          <label class="form-label" for="systemPromptInput">System Instructions / Persona</label>
+          <textarea id="systemPromptInput" class="form-textarea" rows="3" placeholder="You are Aether AI, a brilliant, helpful, and concise AI assistant..."></textarea>
+        </div>
+
+        <!-- Creativity / Temperature Slider -->
+        <div class="form-group">
+          <div class="slider-header">
+            <label class="form-label" for="tempSlider">Creativity / Temperature</label>
+            <span class="slider-val" id="tempVal">0.7</span>
+          </div>
+          <input type="range" id="tempSlider" min="0" max="1" step="0.1" value="0.7" class="form-range">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="resetSettingsBtn">Reset Defaults</button>
+        <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
